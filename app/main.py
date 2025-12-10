@@ -1,6 +1,6 @@
 from fastapi import FastAPI
 from fastapi.middleware.cors import CORSMiddleware
-from app.routers import workouts, tts
+from app.routers import workouts, tts, users, workout_sessions, workout_audio, user_config
 from app.database import engine, Base
 import logging
 
@@ -55,6 +55,10 @@ app.add_middleware(
 # Include routers
 app.include_router(workouts.router, prefix="/api/v1", tags=["workouts"])
 app.include_router(tts.router, prefix="/api/v1", tags=["tts"])
+app.include_router(users.router, prefix="/api/v1", tags=["users"])
+app.include_router(workout_sessions.router, prefix="/api/v1", tags=["workout-sessions"])
+app.include_router(workout_audio.router, prefix="/api/v1", tags=["workout-audio"])
+app.include_router(user_config.router, prefix="/api/v1", tags=["user-config"])
 
 
 @app.get("/health")

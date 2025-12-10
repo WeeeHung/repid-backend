@@ -18,6 +18,7 @@ class AuthSettings(BaseSettings):
 
 
 security = HTTPBearer()
+optional_security = HTTPBearer(auto_error=False)
 
 
 def get_jwks_url() -> str:
@@ -117,22 +118,28 @@ def get_current_user_id(
 
 
 def get_optional_user_id(
-    credentials: Optional[HTTPAuthorizationCredentials] = Depends(security)
+    credentials: Optional[HTTPAuthorizationCredentials] = Depends(optional_security)
 ) -> Optional[str]:
     """
     Extract user ID from Clerk JWT token (optional - for public endpoints)
     
     Args:
-        credentials: Optional HTTP Bearer token credentials
+        credentials: Optional HTTP Bearer token credentials (None if no Authorization header)
         
     Returns:
-        Optional[str]: User ID from token, or None if not authenticated
+        Optional[str]: User ID from token, or None if not authenticated or token is invalid
     """
     if not credentials:
         return None
     
     try:
-        return get_current_user_id(credentials)
-    except HTTPException:
+        token = credentials.credentials
+        payload = verify_clerk_token(token)
+        
+        # Clerk stores user ID in 'sub' claim
+        user_id = payload.get("sub") or payload.get("user_id")
+        return user_id
+    except (HTTPException, Exception):
+        # If token verification fails, return None (don't raise exception)
         return None
 
