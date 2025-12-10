@@ -147,12 +147,27 @@ $$ LANGUAGE plpgsql;
 CREATE OR REPLACE FUNCTION public.handle_new_user()
 RETURNS TRIGGER AS $$
 BEGIN
-  INSERT INTO public.app_users (id, full_name, email)
+  -- Insert into app_users
+  INSERT INTO public.app_users (id, full_name, avatar_url, email)
   VALUES (
     NEW.id,
     COALESCE(NEW.raw_user_meta_data->>'full_name', ''),
+    COALESCE(NEW.raw_user_meta_data->>'avatar_url', NULL),
     NEW.email
   );
+  
+  -- Insert into user_profile with default values (all NULL)
+  INSERT INTO public.user_profile (user_id)
+  VALUES (NEW.id);
+  
+  -- Insert into user_app_config with default preferences
+  INSERT INTO public.user_app_config (user_id, preferences)
+  VALUES (NEW.id, '{}'::jsonb);
+  
+  -- Insert into user_trainer_config with default trainer_config
+  INSERT INTO public.user_trainer_config (user_id, trainer_config)
+  VALUES (NEW.id, '{}'::jsonb);
+  
   RETURN NEW;
 END;
 $$ LANGUAGE plpgsql SECURITY DEFINER;
