@@ -120,3 +120,4 @@ class UserTrainerConfigResponse(UserTrainerConfigBase):
 
     class Config:
         from_attributes = True
+

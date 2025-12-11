@@ -127,3 +127,4 @@ async def get_user_trainer_config(
             created_at=now,
             updated_at=now
         )
+

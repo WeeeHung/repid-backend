@@ -25,3 +25,4 @@ class UserWorkoutSession(Base):
     # Relationships
     user = relationship("AppUser", back_populates="workout_sessions")
     package = relationship("WorkoutPackage", back_populates="sessions")
+

@@ -19,3 +19,4 @@ class GenerateAudioRequest(BaseModel):
 class GenerateAudioResponse(BaseModel):
     """Response schema for generated workout audio"""
     audio_queue: List[AudioQueueItem]
+

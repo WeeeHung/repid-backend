@@ -60,3 +60,4 @@ async def generate_workout_audio(
             status_code=status.HTTP_500_INTERNAL_SERVER_ERROR,
             detail=f"Error generating workout audio: {str(e)}"
         )
+

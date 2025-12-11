@@ -25,3 +25,4 @@ class AppUser(Base):
     trainer_config = relationship("UserTrainerConfig", back_populates="user", uselist=False, cascade="all, delete-orphan")
     workout_packages = relationship("WorkoutPackage", back_populates="user")
     workout_sessions = relationship("UserWorkoutSession", back_populates="user")
+

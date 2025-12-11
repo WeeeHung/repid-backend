@@ -305,3 +305,4 @@ async def update_workout_session_progress(
             status_code=status.HTTP_500_INTERNAL_SERVER_ERROR,
             detail=f"Error updating workout session: {str(e)}"
         )
+

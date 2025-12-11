@@ -94,3 +94,4 @@ class SessionUpdateRequest(BaseModel):
     current_step: Optional[int] = Field(None, ge=0, description="Current step index")
     progress_percent: Optional[float] = Field(None, ge=0, le=100, description="Progress percentage (0-100)")
     additional_metadata: Optional[Dict[str, Any]] = Field(None, description="Additional metadata to merge")
+

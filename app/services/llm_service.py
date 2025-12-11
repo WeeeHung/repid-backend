@@ -126,3 +126,4 @@ Return ONLY the script text, no explanations or metadata."""
             return script
         except Exception as e:
             raise Exception(f"Failed to generate workout script: {str(e)}")
+

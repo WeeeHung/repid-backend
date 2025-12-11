@@ -28,3 +28,4 @@ class UserProfile(Base):
         CheckConstraint("fitness_level IN ('beginner', 'intermediate', 'advanced')", name='check_fitness_level'),
         CheckConstraint("goal IN ('lose_fat', 'build_muscle', 'general_fitness')", name='check_goal'),
     )
+

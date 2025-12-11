@@ -637,3 +637,4 @@ async def delete_user_trainer_config(
     db.delete(db_config)
     db.commit()
     return None
+

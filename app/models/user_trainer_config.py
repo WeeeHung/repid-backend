@@ -17,3 +17,4 @@ class UserTrainerConfig(Base):
     
     # Relationships
     user = relationship("AppUser", back_populates="trainer_config")
+

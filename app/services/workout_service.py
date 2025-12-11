@@ -368,3 +368,4 @@ class WorkoutService:
                 raise Exception(f"Failed to generate audio for step {step.id}: {str(e)}")
         
         return audio_queue
+

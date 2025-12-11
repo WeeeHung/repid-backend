@@ -140,3 +140,4 @@ class SessionService:
         self.db.commit()
         self.db.refresh(session)
         return session
+
