@@ -54,12 +54,37 @@ CREATE TABLE IF NOT EXISTS workout_packages (
     category TEXT,
     estimated_duration_sec INTEGER,
     cover_image_url TEXT,
-    voice_id UUID,
+
     user_id UUID REFERENCES app_users(id) DEFAULT NULL,
     created_at TIMESTAMP WITH TIME ZONE DEFAULT NOW(),
     updated_at TIMESTAMP WITH TIME ZONE DEFAULT NOW()
-    -- List of associated workout step IDs (array of UUIDs)
-    step_ids UUID[] DEFAULT '{}',
+    
+    -- List of associated workout steps (array of workout_steps)
+    steps JSONB DEFAULT '[]',
+    -- Sample: 
+    -- [
+    --   {
+    --     "step_id": "farmers-walk-uuid",
+    --     "distance_m": 40,
+    --     "weight_kg": 20
+    --   },
+    --
+    --   {
+    --     "step_id": "weighted-plank-uuid",
+    --     "duration_s": 40,
+    --     "weight_kg": 20
+    --   },
+    --
+    --   {
+    --     "step_id": "deadlift-uuid",
+    --     "sets": [
+    --       { "reps": 5, "weight_kg": 100 },
+    --       { "reps": 5, "weight_kg": 110 }
+    --     ],
+    --     "rest_between_sets_s": 30
+    --   }
+    -- ]
+
 );
 # ✅ 6
 CREATE TABLE IF NOT EXISTS workout_steps (
@@ -67,9 +92,20 @@ CREATE TABLE IF NOT EXISTS workout_steps (
     
     title TEXT NOT NULL,
     description TEXT,
-    duration_sec INTEGER,
-    posture_image_url TEXT,
-    instructions TEXT
+    estimated_duration_sec INTEGER,
+    category TEXT,
+    media_url TEXT,
+    instructions TEXT,
+
+    exercise_type TEXT CHECK (
+        exercise_type IN ('reps', 'duration', 'weight', 'distance', 'custom')
+    ), -- Helps with UI component render
+
+    -- optional defaults ONLY
+    default_reps INTEGER,
+    default_duration_sec INTEGER,
+    default_weight_kg FLOAT,
+    default_distance_m FLOAT,
 
     created_at TIMESTAMP WITH TIME ZONE DEFAULT NOW(),
     updated_at TIMESTAMP WITH TIME ZONE DEFAULT NOW()
@@ -82,8 +118,6 @@ CREATE TABLE IF NOT EXISTS user_workout_sessions (
 
     started_at TIMESTAMP WITH TIME ZONE DEFAULT NOW(),
     ended_at TIMESTAMP WITH TIME_ZONE,
-    duration_sec INTEGER,
-    calories_estimated INTEGER,
     metadata JSONB DEFAULT '{}',
 
     created_at TIMESTAMP WITH TIME ZONE DEFAULT NOW(),

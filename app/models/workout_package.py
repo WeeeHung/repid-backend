@@ -1,5 +1,5 @@
 from sqlalchemy import Column, String, Integer, Text, DateTime, ForeignKey
-from sqlalchemy.dialects.postgresql import UUID, ARRAY
+from sqlalchemy.dialects.postgresql import UUID, JSONB
 from sqlalchemy.orm import relationship
 from sqlalchemy.sql import func
 import uuid
@@ -17,9 +17,8 @@ class WorkoutPackage(Base):
     category = Column(Text, nullable=True)
     estimated_duration_sec = Column(Integer, nullable=True)
     cover_image_url = Column(Text, nullable=True)
-    voice_id = Column(UUID(as_uuid=True), nullable=True)
     user_id = Column(UUID(as_uuid=True), ForeignKey("app_users.id", ondelete="SET NULL"), nullable=True)
-    step_ids = Column(ARRAY(UUID(as_uuid=True)), default=[], nullable=False)
+    steps = Column(JSONB, default=[], nullable=False)
     created_at = Column(DateTime(timezone=True), server_default=func.now())
     updated_at = Column(DateTime(timezone=True), server_default=func.now(), onupdate=func.now())
     

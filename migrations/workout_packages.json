@@ -1,0 +1,280 @@
+[
+  {
+    "id": "46be991a-14f1-40a2-9785-b1293260e4db",
+    "title": "PUSH \u2014 Chest, Shoulders, Triceps",
+    "description": "Upper-body pressing strength. 20-30 mins.",
+    "category": "Strength",
+    "estimated_duration_sec": 1800,
+    "cover_image_url": "https://images.unsplash.com/photo-1581009146145-b5ef050c2e1e?auto=format&fit=crop&w=800",
+    "steps": [
+      {
+        "step_id": "71c1da77-7f27-4f6b-889e-178d6d8b3858",
+        "sets": [
+          {
+            "reps": 12
+          },
+          {
+            "reps": 12
+          },
+          {
+            "reps": 12
+          }
+        ],
+        "rest_between_sets_s": 60
+      },
+      {
+        "step_id": "0f336fbe-5a67-4f53-bd5b-31295c8da2f1",
+        "sets": [
+          {
+            "reps": 10,
+            "weight_kg": 10
+          },
+          {
+            "reps": 10,
+            "weight_kg": 10
+          },
+          {
+            "reps": 10,
+            "weight_kg": 10
+          }
+        ],
+        "rest_between_sets_s": 60
+      },
+      {
+        "step_id": "977bcb43-fa05-4966-bf6d-df11ab841b35",
+        "sets": [
+          {
+            "reps": 12,
+            "weight_kg": 10
+          },
+          {
+            "reps": 12,
+            "weight_kg": 10
+          },
+          {
+            "reps": 12,
+            "weight_kg": 10
+          }
+        ],
+        "rest_between_sets_s": 60
+      },
+      {
+        "step_id": "b62c1b54-3782-4306-ab0e-a178eb397f85",
+        "sets": [
+          {
+            "reps": 15,
+            "weight_kg": 10
+          },
+          {
+            "reps": 15,
+            "weight_kg": 10
+          },
+          {
+            "reps": 15,
+            "weight_kg": 10
+          }
+        ],
+        "rest_between_sets_s": 45
+      },
+      {
+        "step_id": "8742bad6-ff5a-49f4-9e4f-bcad1274d836",
+        "sets": [
+          {
+            "reps": 12
+          },
+          {
+            "reps": 12
+          },
+          {
+            "reps": 12
+          }
+        ],
+        "rest_between_sets_s": 90
+      }
+    ]
+  },
+  {
+    "id": "4c9f598e-13ab-4496-ad30-9f4ca8786f4e",
+    "title": "PULL \u2014 Back, Biceps, Rear Delts",
+    "description": "Balanced pulling strength and posture. 20-30 mins.",
+    "category": "Strength",
+    "estimated_duration_sec": 1800,
+    "cover_image_url": "https://images.unsplash.com/photo-1526506118085-60ce8714f8c5?auto=format&fit=crop&w=800",
+    "steps": [
+      {
+        "step_id": "db35056e-2aa3-44dd-abbb-71d59f3729f6",
+        "sets": [
+          {
+            "reps": 12,
+            "weight_kg": 10
+          },
+          {
+            "reps": 12,
+            "weight_kg": 10
+          },
+          {
+            "reps": 12,
+            "weight_kg": 10
+          }
+        ],
+        "rest_between_sets_s": 70
+      },
+      {
+        "step_id": "e8a2174e-3e33-4e67-a28d-b482e353854e",
+        "sets": [
+          {
+            "reps": 10,
+            "weight_kg": 10
+          },
+          {
+            "reps": 10,
+            "weight_kg": 10
+          },
+          {
+            "reps": 10,
+            "weight_kg": 10
+          }
+        ],
+        "rest_between_sets_s": 60
+      },
+      {
+        "step_id": "02460d89-c316-457b-8753-66b923aa1bf5",
+        "sets": [
+          {
+            "reps": 15,
+            "weight_kg": 10
+          },
+          {
+            "reps": 15,
+            "weight_kg": 10
+          },
+          {
+            "reps": 15,
+            "weight_kg": 10
+          }
+        ],
+        "rest_between_sets_s": 60
+      },
+      {
+        "step_id": "cc85160f-73a8-4ee6-9e0a-e8d20238353c",
+        "sets": [
+          {
+            "reps": 12,
+            "weight_kg": 10
+          },
+          {
+            "reps": 12,
+            "weight_kg": 10
+          },
+          {
+            "reps": 12,
+            "weight_kg": 10
+          }
+        ],
+        "rest_between_sets_s": 45
+      },
+      {
+        "step_id": "74c1149d-8431-4810-9913-60b7c896797f",
+        "sets": [
+          {
+            "reps": 15,
+            "weight_kg": 10
+          },
+          {
+            "reps": 15,
+            "weight_kg": 10
+          }
+        ],
+        "rest_between_sets_s": 90
+      }
+    ]
+  },
+  {
+    "id": "5f620d9c-0462-4e8a-8150-f3d6b921d482",
+    "title": "LEGS \u2014 Quads, Glutes, Hamstrings, Calves",
+    "description": "Lower-body strength and balance. 20-30 mins.",
+    "category": "Strength",
+    "estimated_duration_sec": 1800,
+    "cover_image_url": "https://images.unsplash.com/photo-1434608519344-49d77a699caf?auto=format&fit=crop&w=800",
+    "steps": [
+      {
+        "step_id": "4f44596c-eae1-4880-8424-e842b1df61af",
+        "sets": [
+          {
+            "reps": 12
+          },
+          {
+            "reps": 12
+          },
+          {
+            "reps": 12
+          }
+        ],
+        "rest_between_sets_s": 75
+      },
+      {
+        "step_id": "0ca9e664-826e-4937-87ec-04aa5d8f8680",
+        "sets": [
+          {
+            "reps": 10
+          },
+          {
+            "reps": 10
+          },
+          {
+            "reps": 10
+          }
+        ],
+        "rest_between_sets_s": 75
+      },
+      {
+        "step_id": "104e2720-620a-4332-a8d3-6e0a22772c63",
+        "sets": [
+          {
+            "reps": 12,
+            "weight_kg": 10
+          },
+          {
+            "reps": 12,
+            "weight_kg": 10
+          },
+          {
+            "reps": 12,
+            "weight_kg": 10
+          }
+        ],
+        "rest_between_sets_s": 75
+      },
+      {
+        "step_id": "4ce35509-a61b-44d0-b4fb-3d36a6c1be98",
+        "sets": [
+          {
+            "reps": 10
+          },
+          {
+            "reps": 10
+          },
+          {
+            "reps": 10
+          }
+        ],
+        "rest_between_sets_s": 90
+      },
+      {
+        "step_id": "6f31848f-a3f2-4685-9a44-02f2fec20036",
+        "sets": [
+          {
+            "reps": 20
+          },
+          {
+            "reps": 20
+          },
+          {
+            "reps": 20
+          }
+        ],
+        "rest_between_sets_s": 60
+      }
+    ]
+  }
+]

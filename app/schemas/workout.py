@@ -9,9 +9,15 @@ class WorkoutStepBase(BaseModel):
     """Base schema for WorkoutStep"""
     title: str
     description: Optional[str] = None
-    duration_sec: Optional[int] = None
-    posture_image_url: Optional[str] = None
+    estimated_duration_sec: Optional[int] = None
+    category: Optional[str] = None
+    media_url: Optional[str] = None
     instructions: Optional[str] = None
+    exercise_type: Optional[str] = None
+    default_reps: Optional[int] = None
+    default_duration_sec: Optional[int] = None
+    default_weight_kg: Optional[float] = None
+    default_distance_m: Optional[float] = None
 
 
 class WorkoutStepCreate(WorkoutStepBase):
@@ -23,9 +29,15 @@ class WorkoutStepUpdate(BaseModel):
     """Schema for updating a WorkoutStep"""
     title: Optional[str] = None
     description: Optional[str] = None
-    duration_sec: Optional[int] = None
-    posture_image_url: Optional[str] = None
+    estimated_duration_sec: Optional[int] = None
+    category: Optional[str] = None
+    media_url: Optional[str] = None
     instructions: Optional[str] = None
+    exercise_type: Optional[str] = None
+    default_reps: Optional[int] = None
+    default_duration_sec: Optional[int] = None
+    default_weight_kg: Optional[float] = None
+    default_distance_m: Optional[float] = None
 
 
 class WorkoutStepResponse(WorkoutStepBase):
@@ -46,8 +58,7 @@ class WorkoutPackageBase(BaseModel):
     category: Optional[str] = None
     estimated_duration_sec: Optional[int] = None
     cover_image_url: Optional[str] = None
-    voice_id: Optional[UUID] = None
-    step_ids: Optional[List[UUID]] = []
+    steps: List[UUID] = []
 
 
 class WorkoutPackageCreate(WorkoutPackageBase):
@@ -62,8 +73,7 @@ class WorkoutPackageUpdate(BaseModel):
     category: Optional[str] = None
     estimated_duration_sec: Optional[int] = None
     cover_image_url: Optional[str] = None
-    voice_id: Optional[UUID] = None
-    step_ids: Optional[List[UUID]] = None
+    steps: Optional[List[UUID]] = None
 
 
 class WorkoutPackageResponse(WorkoutPackageBase):

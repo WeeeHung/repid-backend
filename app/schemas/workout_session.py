@@ -9,8 +9,6 @@ class WorkoutSessionBase(BaseModel):
     package_id: Optional[UUID] = None
     started_at: Optional[datetime] = None
     ended_at: Optional[datetime] = None
-    duration_sec: Optional[int] = None
-    calories_estimated: Optional[int] = None
     metadata: Dict[str, Any] = Field(default_factory=dict)
 
 
@@ -24,8 +22,6 @@ class WorkoutSessionUpdate(BaseModel):
     package_id: Optional[UUID] = None
     started_at: Optional[datetime] = None
     ended_at: Optional[datetime] = None
-    duration_sec: Optional[int] = None
-    calories_estimated: Optional[int] = None
     metadata: Optional[Dict[str, Any]] = None
 
 
@@ -54,8 +50,6 @@ class WorkoutSessionResponse(WorkoutSessionBase):
                 'package_id': data.package_id,
                 'started_at': data.started_at,
                 'ended_at': data.ended_at,
-                'duration_sec': data.duration_sec,
-                'calories_estimated': data.calories_estimated,
                 'metadata': data.session_metadata,
                 'created_at': data.created_at,
                 'updated_at': data.updated_at,

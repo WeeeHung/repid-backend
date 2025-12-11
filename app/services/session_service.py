@@ -82,10 +82,10 @@ class SessionService:
         
         # Update session
         session.ended_at = datetime.utcnow()
-        session.duration_sec = total_duration_sec
         
         # Update metadata
         metadata = session.session_metadata or {}
+        metadata["duration_sec"] = total_duration_sec
         metadata["completed_steps"] = completed_steps
         if user_metrics:
             metadata["user_metrics"] = user_metrics

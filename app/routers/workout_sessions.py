@@ -47,8 +47,6 @@ async def create_workout_session(
         package_id=session.package_id,
         started_at=session.started_at or datetime.utcnow(),
         ended_at=session.ended_at,
-        duration_sec=session.duration_sec,
-        calories_estimated=session.calories_estimated,
         session_metadata=session.metadata
     )
     db.add(db_session)

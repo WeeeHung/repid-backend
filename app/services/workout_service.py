@@ -45,21 +45,24 @@ class WorkoutService:
         if not package:
             raise ValueError(f"Workout package {package_id} not found")
         
-        if not package.step_ids:
+        if not package.steps:
             return package, []
+        
+        # Extract IDs from steps list (assuming extraction logic remains similar)
+        step_ids_list = package.steps
         
         steps = (
             self.db.query(WorkoutStep)
-            .filter(WorkoutStep.id.in_(package.step_ids))
+            .filter(WorkoutStep.id.in_(step_ids_list))
             .all()
         )
         
-        # Sort steps by the order in step_ids array
-        step_dict = {step.id: step for step in steps}
-        ordered_steps = [step_dict[step_id] for step_id in package.step_ids if step_id in step_dict]
+        # Sort steps by the order in steps array
+        step_dict = {str(step.id): step for step in steps}
+        ordered_steps = [step_dict[str(step_id)] for step_id in step_ids_list if str(step_id) in step_dict]
         
-        if len(ordered_steps) != len(package.step_ids):
-            missing = set(package.step_ids) - {step.id for step in ordered_steps}
+        if len(ordered_steps) != len(step_ids_list):
+            missing = set(map(str, step_ids_list)) - {str(step.id) for step in ordered_steps}
             raise ValueError(f"Some workout steps not found: {missing}")
         
         return package, ordered_steps
@@ -75,12 +78,10 @@ class WorkoutService:
         Returns:
             Dict with voice_id, voice_provider, language, speaking_rate
         """
-        # Fallback chain: trainer_config.voice_id → package.voice_id → default
+        # Fallback chain: trainer_config.voice_id → default
         voice_id = None
         if trainer_config.get("voice_id"):
             voice_id = str(trainer_config["voice_id"])
-        elif package.voice_id:
-            voice_id = str(package.voice_id)
         
         return {
             "voice_id": voice_id,
@@ -246,7 +247,7 @@ class WorkoutService:
                 step_title=step.title,
                 step_description=step.description,
                 step_instructions=step.instructions,
-                step_duration_sec=step.duration_sec,
+                step_duration_sec=step.estimated_duration_sec,
                 user_profile=user_profile,
                 trainer_config=trainer_config
             )

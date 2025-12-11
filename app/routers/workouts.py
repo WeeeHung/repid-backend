@@ -47,9 +47,8 @@ async def create_workout_package(
         category=workout.category,
         estimated_duration_sec=workout.estimated_duration_sec,
         cover_image_url=workout.cover_image_url,
-        voice_id=workout.voice_id,
         user_id=user_uuid,
-        step_ids=workout.step_ids or []
+        steps=workout.steps or []
     )
     db.add(db_workout)
     db.commit()
@@ -132,17 +131,19 @@ async def get_workout_package(
             detail=f"Workout package with id {package_id} not found"
         )
     
-    # Get all steps referenced in step_ids
+    # Get all steps referenced in steps
     steps = []
-    if workout.step_ids:
+    if workout.steps:
+        # Extract IDs from steps list (assuming extraction logic remains similar)
+        step_ids_list = workout.steps
         steps = (
             db.query(WorkoutStep)
-            .filter(WorkoutStep.id.in_(workout.step_ids))
+            .filter(WorkoutStep.id.in_(step_ids_list))
             .all()
         )
-        # Sort steps by the order in step_ids array
-        step_dict = {step.id: step for step in steps}
-        steps = [step_dict[step_id] for step_id in workout.step_ids if step_id in step_dict]
+        # Sort steps by the order in steps array
+        step_dict = {str(step.id): step for step in steps}
+        steps = [step_dict[str(step_id)] for step_id in step_ids_list if str(step_id) in step_dict]
     
     # Build full response
     response = {
@@ -152,9 +153,7 @@ async def get_workout_package(
         "category": workout.category,
         "estimated_duration_sec": workout.estimated_duration_sec,
         "cover_image_url": workout.cover_image_url,
-        "voice_id": workout.voice_id,
         "user_id": workout.user_id,
-        "step_ids": workout.step_ids,
         "created_at": workout.created_at,
         "updated_at": workout.updated_at,
         "steps": steps
@@ -243,9 +242,15 @@ async def create_workout_step(
     db_step = WorkoutStep(
         title=step.title,
         description=step.description,
-        duration_sec=step.duration_sec,
-        posture_image_url=step.posture_image_url,
-        instructions=step.instructions
+        estimated_duration_sec=step.estimated_duration_sec,
+        category=step.category,
+        media_url=step.media_url,
+        instructions=step.instructions,
+        exercise_type=step.exercise_type,
+        default_reps=step.default_reps,
+        default_duration_sec=step.default_duration_sec,
+        default_weight_kg=step.default_weight_kg,
+        default_distance_m=step.default_distance_m
     )
     db.add(db_step)
     db.commit()

@@ -1,0 +1,152 @@
+[
+  {
+    "id": "71c1da77-7f27-4f6b-889e-178d6d8b3858",
+    "title": "Elevated Push-ups",
+    "description": "Push-ups with hands elevated on bars",
+    "category": "Chest",
+    "media_url": "https://placehold.co/600x400?text=Elevated+Push-ups",
+    "instructions": "Keep core tight; descend slowly.",
+    "exercise_type": "reps",
+    "default_reps": 12
+  },
+  {
+    "id": "0f336fbe-5a67-4f53-bd5b-31295c8da2f1",
+    "title": "Dumbbell Shoulder Press",
+    "description": "Overhead press with dumbbells",
+    "category": "Shoulders",
+    "media_url": "https://placehold.co/600x400?text=Shoulder+Press",
+    "instructions": "Elbows slightly forward, avoid flaring.",
+    "exercise_type": "reps",
+    "default_reps": 10
+  },
+  {
+    "id": "977bcb43-fa05-4966-bf6d-df11ab841b35",
+    "title": "Dumbbell Floor Chest Press",
+    "description": "Chest press lying on floor",
+    "category": "Chest",
+    "media_url": "https://placehold.co/600x400?text=Floor+Press",
+    "instructions": "Pause 1s at bottom for tension.",
+    "exercise_type": "reps",
+    "default_reps": 12
+  },
+  {
+    "id": "b62c1b54-3782-4306-ab0e-a178eb397f85",
+    "title": "Dumbbell Lateral Raises",
+    "description": "Raise dumbbells to sides",
+    "category": "Shoulders",
+    "media_url": "https://placehold.co/600x400?text=Lateral+Raises",
+    "instructions": "Soft bend in elbows, lift to shoulder height.",
+    "exercise_type": "reps",
+    "default_reps": 15
+  },
+  {
+    "id": "8742bad6-ff5a-49f4-9e4f-bcad1274d836",
+    "title": "Tricep Dips",
+    "description": "Dips using a chair or bench",
+    "category": "Triceps",
+    "media_url": "https://placehold.co/600x400?text=Tricep+Dips",
+    "instructions": "Keep torso close to chair.",
+    "exercise_type": "reps",
+    "default_reps": 12
+  },
+  {
+    "id": "db35056e-2aa3-44dd-abbb-71d59f3729f6",
+    "title": "Single-Arm Dumbbell Row",
+    "description": "Rowing with one arm supported",
+    "category": "Back",
+    "media_url": "https://placehold.co/600x400?text=One+Arm+Row",
+    "instructions": "Pull elbow toward hip.",
+    "exercise_type": "reps",
+    "default_reps": 12
+  },
+  {
+    "id": "e8a2174e-3e33-4e67-a28d-b482e353854e",
+    "title": "Dumbbell Dead-Row",
+    "description": "RDL into a row at the bottom",
+    "category": "Back",
+    "media_url": "https://placehold.co/600x400?text=Dead+Row",
+    "instructions": "Squeeze lats at the top of the row.",
+    "exercise_type": "reps",
+    "default_reps": 10
+  },
+  {
+    "id": "02460d89-c316-457b-8753-66b923aa1bf5",
+    "title": "Rear-Delt Dumbbell Fly",
+    "description": "Bent over reverse flys",
+    "category": "Shoulders",
+    "media_url": "https://placehold.co/600x400?text=Rear+Delt+Fly",
+    "instructions": "Sweep arms outward, not up.",
+    "exercise_type": "reps",
+    "default_reps": 15
+  },
+  {
+    "id": "cc85160f-73a8-4ee6-9e0a-e8d20238353c",
+    "title": "Alternating Dumbbell Bicep Curl",
+    "description": "Curl one arm at a time",
+    "category": "Biceps",
+    "media_url": "https://placehold.co/600x400?text=Bicep+Curl",
+    "instructions": "Slow on the way down, no swinging.",
+    "exercise_type": "reps",
+    "default_reps": 12
+  },
+  {
+    "id": "74c1149d-8431-4810-9913-60b7c896797f",
+    "title": "Hammer Curls",
+    "description": "Neutral grip curls",
+    "category": "Biceps",
+    "media_url": "https://placehold.co/600x400?text=Hammer+Curls",
+    "instructions": "Keep elbows tucked.",
+    "exercise_type": "reps",
+    "default_reps": 15
+  },
+  {
+    "id": "4f44596c-eae1-4880-8424-e842b1df61af",
+    "title": "Goblet Squat",
+    "description": "Squat holding weight at chest",
+    "category": "Legs",
+    "media_url": "https://placehold.co/600x400?text=Goblet+Squat",
+    "instructions": "Chest tall, push knees out.",
+    "exercise_type": "reps",
+    "default_reps": 12
+  },
+  {
+    "id": "0ca9e664-826e-4937-87ec-04aa5d8f8680",
+    "title": "Dumbbell Reverse Lunges",
+    "description": "Stepping back into lunge",
+    "category": "Legs",
+    "media_url": "https://placehold.co/600x400?text=Reverse+Lunges",
+    "instructions": "Step long for glutes; keep torso stable.",
+    "exercise_type": "reps",
+    "default_reps": 10
+  },
+  {
+    "id": "104e2720-620a-4332-a8d3-6e0a22772c63",
+    "title": "Dumbbell Romanian Deadlift",
+    "description": "Hinge movement for hamstrings",
+    "category": "Legs",
+    "media_url": "https://placehold.co/600x400?text=RDL",
+    "instructions": "Hinge from hips, soft knees.",
+    "exercise_type": "reps",
+    "default_reps": 12
+  },
+  {
+    "id": "4ce35509-a61b-44d0-b4fb-3d36a6c1be98",
+    "title": "Bulgarian Split Squats",
+    "description": "Single leg squat with rear foot elevated",
+    "category": "Legs",
+    "media_url": "https://placehold.co/600x400?text=Split+Squat",
+    "instructions": "Keep front knee aligned, move slow.",
+    "exercise_type": "reps",
+    "default_reps": 10
+  },
+  {
+    "id": "6f31848f-a3f2-4685-9a44-02f2fec20036",
+    "title": "Standing Calf Raises",
+    "description": "Calf raises standing",
+    "category": "Calves",
+    "media_url": "https://placehold.co/600x400?text=Calf+Raises",
+    "instructions": "Stretch at bottom, squeeze at top.",
+    "exercise_type": "reps",
+    "default_reps": 20
+  }
+]

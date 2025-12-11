@@ -16,8 +16,6 @@ class UserWorkoutSession(Base):
     package_id = Column(UUID(as_uuid=True), ForeignKey("workout_packages.id", ondelete="SET NULL"), nullable=True)
     started_at = Column(DateTime(timezone=True), server_default=func.now())
     ended_at = Column(DateTime(timezone=True), nullable=True)
-    duration_sec = Column(Integer, nullable=True)
-    calories_estimated = Column(Integer, nullable=True)
     session_metadata = Column("metadata", JSONB, default={}, nullable=False)
     created_at = Column(DateTime(timezone=True), server_default=func.now())
     updated_at = Column(DateTime(timezone=True), server_default=func.now(), onupdate=func.now())
