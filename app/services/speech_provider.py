@@ -53,7 +53,7 @@ class ElevenLabsProvider(SpeechProviderInterface):
             bytes: Audio data (MP3 format)
         """
         voice = voice_id or self.default_voice_id
-        model_id = kwargs.get("model_id", "eleven_monolingual_v1")
+        model_id = kwargs.get("model_id", "eleven_turbo_v2_5")
         voice_settings = kwargs.get("voice_settings", VoiceSettings(
             stability=0.5,
             similarity_boost=0.75,

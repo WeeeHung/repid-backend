@@ -5,7 +5,7 @@ import logging
 import base64
 from app.models.workout_package import WorkoutPackage
 from app.models.workout_step import WorkoutStep
-from app.services.llm_service import LLMService
+from app.services.llm_factory import create_llm_provider
 from app.services.speech_factory import create_speech_provider
 # from app.services.storage import upload_audio_file  # No longer saving to Supabase storage
 from app.services.user_config_service import UserConfigService
@@ -26,7 +26,7 @@ class WorkoutService:
             db: Database session
         """
         self.db = db
-        self.llm_service = LLMService()
+        self.llm_service = create_llm_provider()
     
     def get_workout_package_with_steps(self, package_id: UUID) -> Tuple[WorkoutPackage, List[WorkoutStep]]:
         """
