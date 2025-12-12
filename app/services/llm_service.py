@@ -29,7 +29,7 @@ class LLMService:
             raise ValueError("GEMINI_API_KEY is required for LLM service")
         
         genai.configure(api_key=self.api_key)
-        self.model_name = 'gemini-2.5-flash'
+        self.model_name = 'gemini-2.5-flash-lite'
         self.model = genai.GenerativeModel(self.model_name)
     
     def generate_workout_script(
@@ -90,7 +90,7 @@ class LLMService:
         goal_desc = goal_map.get(goal, "improving overall fitness")
         
         # Build prompt
-        prompt = f"""You are a personal fitness trainer providing voice instructions for a workout step.
+        prompt = f"""You are a personal fitness trainer providing voice instructions for a workout step to a single person.
 
 WORKOUT STEP:
 - Title: {step_title}
@@ -117,12 +117,13 @@ Generate a personalized voice instruction script for this workout step. The scri
 5. Include clear instructions for the exercise
 6. Be motivating and encouraging
 7. Use natural, conversational language suitable for voice delivery
+8. Do not use any markdown formatting (e.g., **bold**), just plain text.
 
 Return ONLY the script text, no explanations or metadata."""
 
         try:
             response = self.model.generate_content(prompt)
-            script = response.text.strip()
+            script = response.text.strip().replace("**", "")
             return script
         except Exception as e:
             raise Exception(f"Failed to generate workout script: {str(e)}")

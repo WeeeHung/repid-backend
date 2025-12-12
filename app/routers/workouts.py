@@ -130,20 +130,104 @@ async def get_workout_package(
             status_code=status.HTTP_404_NOT_FOUND,
             detail=f"Workout package with id {package_id} not found"
         )
-    
+
     # Get all steps referenced in steps
     steps = []
     if workout.steps:
-        # Extract IDs from steps list (assuming extraction logic remains similar)
-        step_ids_list = workout.steps
-        steps = (
+        # workout.steps can be a list of IDs (strings/UUIDs) or a list of dicts (overrides)
+        step_ids_list = []
+        step_overrides = {}
+
+        for item in workout.steps:
+            if isinstance(item, dict):
+                # Handle dict with overrides
+                # The ID might be stored as "id" or "step_id" depending on how it was saved
+                s_id = item.get("id") or item.get("step_id")
+                if s_id:
+                    step_ids_list.append(s_id)
+                    step_overrides[str(s_id)] = item
+            else:
+                # Handle plain ID (string or UUID)
+                step_ids_list.append(item)
+        
+        # Fetch steps from DB
+        db_steps = (
             db.query(WorkoutStep)
             .filter(WorkoutStep.id.in_(step_ids_list))
             .all()
         )
-        # Sort steps by the order in steps array
-        step_dict = {str(step.id): step for step in steps}
-        steps = [step_dict[str(step_id)] for step_id in step_ids_list if str(step_id) in step_dict]
+        
+        # Create map for quick lookup
+        step_db_map = {str(step.id): step for step in db_steps}
+        
+        # Build final list preserving order
+        for item in workout.steps:
+            # Determine ID again
+            s_id = None
+            override_data = {}
+            
+            if isinstance(item, dict):
+                s_id = item.get("id") or item.get("step_id")
+                override_data = item
+            else:
+                s_id = item
+            
+            s_id_str = str(s_id)
+            if s_id_str in step_db_map:
+                db_step = step_db_map[s_id_str]
+                
+                # Base step data (convert SQLAlchemy model to dict)
+                step_data = {
+                    "step_id": db_step.id,
+                    "title": db_step.title,
+                    "description": db_step.description,
+                    "category": db_step.category,
+                    "estimated_duration_sec": db_step.estimated_duration_sec,
+                    "media_url": db_step.media_url,
+                    "instructions": db_step.instructions,
+                    "exercise_type": db_step.exercise_type,
+                    "default_reps": db_step.default_reps,
+                    "default_duration_sec": db_step.default_duration_sec,
+                    "default_weight_kg": db_step.default_weight_kg,
+                    "default_distance_m": db_step.default_distance_m,
+                    # Backward compatibility for 'id' field
+                    "id": db_step.id, 
+                }
+                
+                # Apply merging logic
+                if "sets" in override_data:
+                    # Case 1: Explicit sets in override
+                    step_data["sets"] = override_data["sets"]
+                    if "rest_between_sets_s" in override_data:
+                        step_data["rest_between_sets_s"] = override_data["rest_between_sets_s"]
+                elif override_data:
+                    # Case 1b: Override exists but no sets (maybe just specific reps override?)
+                    # If the override has specific fields like 'reps', use them.
+                    # Otherwise fall back to defaults mapping.
+                    if "reps" in override_data:
+                         step_data["reps"] = override_data["reps"]
+                    else:
+                         step_data["reps"] = db_step.default_reps
+                         
+                    if "weight_kg" in override_data:
+                         step_data["weight_kg"] = override_data["weight_kg"]
+                    else:
+                         step_data["weight_kg"] = db_step.default_weight_kg
+                         
+                    # Check for other overrides if present in input
+                    if "distance_m" in override_data:
+                        step_data["distance_m"] = override_data["distance_m"]
+                    elif db_step.default_distance_m:
+                        step_data["distance_m"] = db_step.default_distance_m
+                else:
+                    # Case 2: No override (just ID), fallback to defaults flat mapping
+                    # Map default_* to flat fields
+                    step_data["reps"] = db_step.default_reps
+                    step_data["weight_kg"] = db_step.default_weight_kg
+                    step_data["duration_sec"] = db_step.default_duration_sec
+                    step_data["distance_m"] = db_step.default_distance_m
+                
+                steps.append(step_data)
     
     # Build full response
     response = {

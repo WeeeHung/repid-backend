@@ -1,5 +1,5 @@
 from pydantic import BaseModel, Field
-from typing import Optional, List
+from typing import Optional, List, Union, Dict, Any
 from uuid import UUID
 from datetime import datetime
 
@@ -58,7 +58,7 @@ class WorkoutPackageBase(BaseModel):
     category: Optional[str] = None
     estimated_duration_sec: Optional[int] = None
     cover_image_url: Optional[str] = None
-    steps: List[UUID] = []
+    steps: List[Dict[str, Any]] = []
 
 
 class WorkoutPackageCreate(WorkoutPackageBase):
@@ -73,7 +73,7 @@ class WorkoutPackageUpdate(BaseModel):
     category: Optional[str] = None
     estimated_duration_sec: Optional[int] = None
     cover_image_url: Optional[str] = None
-    steps: Optional[List[UUID]] = None
+    steps: Optional[List[Dict[str, Any]]] = None
 
 
 class WorkoutPackageResponse(WorkoutPackageBase):
@@ -87,9 +87,36 @@ class WorkoutPackageResponse(WorkoutPackageBase):
         from_attributes = True
 
 
+
+class WorkoutSet(BaseModel):
+    """Schema for a single set"""
+    reps: Optional[int] = None
+    weight_kg: Optional[float] = None
+    duration_sec: Optional[int] = None
+    distance_m: Optional[float] = None
+
+
+class WorkoutStepConfigured(WorkoutStepBase):
+    """Schema for a configured workout step in a package"""
+    step_id: UUID
+    sets: Optional[List[WorkoutSet]] = None
+    rest_between_sets_s: Optional[int] = None
+    
+    # Flat fields for when sets are not used (overriding defaults)
+    reps: Optional[int] = None
+    weight_kg: Optional[float] = None
+    distance_m: Optional[float] = None
+    
+    # Include other fields from response if needed, but Base has most
+    id: Optional[UUID] = None # Include id for backward compatibility/reference
+
+    class Config:
+        from_attributes = True
+
+
 class WorkoutPackageFull(WorkoutPackageResponse):
     """Full WorkoutPackage with steps"""
-    steps: List[WorkoutStepResponse] = []
+    steps: List[WorkoutStepConfigured] = []
 
     class Config:
         from_attributes = True

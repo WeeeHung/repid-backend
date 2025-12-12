@@ -48,8 +48,18 @@ class WorkoutService:
         if not package.steps:
             return package, []
         
-        # Extract IDs from steps list (assuming extraction logic remains similar)
-        step_ids_list = package.steps
+
+        # Extract IDs from steps list
+        step_ids_list = []
+        for item in package.steps:
+            if isinstance(item, dict):
+                # Handle dict with overrides
+                s_id = item.get("id") or item.get("step_id")
+                if s_id:
+                    step_ids_list.append(s_id)
+            else:
+                # Handle plain ID
+                step_ids_list.append(item)
         
         steps = (
             self.db.query(WorkoutStep)
@@ -57,9 +67,39 @@ class WorkoutService:
             .all()
         )
         
-        # Sort steps by the order in steps array
+        # Sort steps by the order in steps array and apply overrides
         step_dict = {str(step.id): step for step in steps}
-        ordered_steps = [step_dict[str(step_id)] for step_id in step_ids_list if str(step_id) in step_dict]
+        ordered_steps = []
+        
+        for item in package.steps:
+            step_id = None
+            overrides = {}
+            
+            if isinstance(item, dict):
+                step_id = item.get("id") or item.get("step_id")
+                overrides = item
+            else:
+                step_id = item
+            
+            if str(step_id) in step_dict:
+                # Create a detached copy/clone of the step
+                original = step_dict[str(step_id)]
+                # Clone using dict unpacking of column values
+                step_data = {
+                    c.name: getattr(original, c.name) 
+                    for c in original.__table__.columns
+                }
+                merged_step = WorkoutStep(**step_data)
+                
+                # Apply overrides
+                for key, value in overrides.items():
+                    if key in ["id", "step_id"]:
+                        continue
+                    # Only update if the attribute exists on the model
+                    if hasattr(merged_step, key):
+                        setattr(merged_step, key, value)
+                
+                ordered_steps.append(merged_step)
         
         if len(ordered_steps) != len(step_ids_list):
             missing = set(map(str, step_ids_list)) - {str(step.id) for step in ordered_steps}
