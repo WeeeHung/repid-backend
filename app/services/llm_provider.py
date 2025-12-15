@@ -270,6 +270,7 @@ Generate a personalized voice instruction script for this workout step. The scri
 6. Be motivating and encouraging
 7. Use natural, conversational language suitable for voice delivery
 8. Do not use any markdown formatting (e.g., **bold**), just plain text.
+9. Make it fun and engaging with some light-hearted jokes.
 
 Return ONLY the script text, no explanations or metadata."""
 
