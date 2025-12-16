@@ -1,12 +1,12 @@
 # Repid Backend
 
-A FastAPI backend for the Repid voice-first personal workout instructor app, featuring Supabase integration, Clerk authentication, and ElevenLabs text-to-speech.
+A FastAPI backend for the Repid voice-first personal workout instructor app, featuring Supabase integration, Supabase authentication, and ElevenLabs text-to-speech.
 
 ## Features
 
 - **FastAPI** - Modern, fast web framework for building APIs
 - **Supabase** - PostgreSQL database and cloud storage
-- **Clerk Authentication** - Secure user authentication middleware
+- **Supabase Authentication** - Secure user authentication using Supabase JWT tokens
 - **ElevenLabs TTS** - Text-to-speech audio generation for workout instructions
 - **SQLAlchemy ORM** - Database models and relationships
 - **Pydantic Schemas** - Data validation and serialization
@@ -23,7 +23,7 @@ repid-backend/
 │   ├── main.py                    # FastAPI app initialization
 │   ├── database.py                # Supabase database configuration
 │   ├── middleware/
-│   │   └── auth.py                # Clerk authentication middleware
+│   │   └── auth.py                # Supabase authentication middleware
 │   ├── models/                    # SQLAlchemy database models
 │   │   ├── workout_package.py
 │   │   ├── workout_step.py
@@ -49,7 +49,6 @@ repid-backend/
 - Python 3.11 or 3.12
 - pip
 - Supabase account and project
-- Clerk account and application
 - ElevenLabs API account
 
 ## Setup Instructions
@@ -87,16 +86,14 @@ Create a `.env` file in the `repid-backend/` directory:
 ```env
 # Supabase Configuration
 SUPABASE_URL=https://your-project.supabase.co
-SUPABASE_SERVICE_KEY=your-service-role-key
-SUPABASE_ANON_KEY=your-anon-key
+SUPABASE_SECRET_KEY=your-secret-key
 SUPABASE_DB_URL=postgresql://postgres:[YOUR-PASSWORD]@db.[YOUR-PROJECT-REF].supabase.co:5432/postgres
+# Optional: Required only if using HS256 tokens (Supabase typically uses RS256)
+# SUPABASE_JWT_SECRET=your-jwt-secret
 
 # ElevenLabs TTS Configuration
 ELEVENLABS_API_KEY=your-elevenlabs-api-key
 ELEVENLABS_DEFAULT_VOICE_ID=21m00Tcm4TlvDq8ikWAM
-
-# Clerk Authentication
-CLERK_SECRET_KEY=sk_test_your-clerk-secret-key
 
 # TTS Provider (default: elevenlabs)
 TTS_PROVIDER=elevenlabs
@@ -105,7 +102,7 @@ TTS_PROVIDER=elevenlabs
 **Getting your credentials:**
 
 - **Supabase**: Go to Project Settings > API for URL and keys, Database for connection string
-- **Clerk**: Go to your application dashboard > API Keys
+  - For JWT Secret (only needed for HS256 tokens): Go to Project Settings > API > JWT Secret
 - **ElevenLabs**: Navigate to your profile/API section
 
 ### 4. Database Setup
@@ -189,7 +186,7 @@ curl -X POST "http://localhost:8000/api/v1/tts/generate" \
 ```bash
 curl -X POST "http://localhost:8000/api/v1/workouts" \
   -H "Content-Type: application/json" \
-  -H "Authorization: Bearer YOUR_CLERK_TOKEN" \
+  -H "Authorization: Bearer YOUR_SUPABASE_ACCESS_TOKEN" \
   -d '{
     "title": "Morning Stretch",
     "description": "A quick 5-minute morning stretch routine",
@@ -210,13 +207,13 @@ This project uses **Supabase PostgreSQL** for the database. The connection is co
 
 ## Authentication
 
-The API uses **Clerk** for authentication. Protected endpoints require a valid Clerk JWT token in the `Authorization` header:
+The API uses **Supabase** for authentication. Protected endpoints require a valid Supabase JWT access token in the `Authorization` header:
 
 ```
-Authorization: Bearer YOUR_CLERK_TOKEN
+Authorization: Bearer YOUR_SUPABASE_ACCESS_TOKEN
 ```
 
-The authentication middleware (`app/middleware/auth.py`) validates tokens and extracts user information.
+The authentication middleware (`app/middleware/auth.py`) validates Supabase JWT tokens using JWKS and extracts the user ID from the token's `sub` claim. The token is verified against Supabase's public keys to ensure authenticity.
 
 ## Text-to-Speech
 
@@ -298,19 +295,20 @@ gunicorn app.main:app --workers 4 --worker-class uvicorn.workers.UvicornWorker -
 
 - Verify Supabase Storage buckets exist (`audio` and `images`)
 - Check bucket permissions are set correctly
-- Ensure `SUPABASE_SERVICE_KEY` has storage access
+- Ensure `SUPABASE_SECRET_KEY` has storage access
 
 ### Authentication Issues
 
-- Verify `CLERK_SECRET_KEY` is correct
-- Check token format in Authorization header
-- Ensure Clerk application is properly configured
+- Verify `SUPABASE_URL` is correct in your `.env` file
+- Check token format in Authorization header (should be a Supabase access token)
+- Ensure the token is not expired
+- Verify Supabase project is accessible and authentication is properly configured
 
 ## Learn More
 
 - [FastAPI Documentation](https://fastapi.tiangolo.com/)
 - [Supabase Documentation](https://supabase.com/docs)
-- [Clerk Documentation](https://clerk.com/docs)
+- [Supabase Authentication](https://supabase.com/docs/guides/auth)
 - [ElevenLabs API Documentation](https://elevenlabs.io/docs)
 - [SQLAlchemy Documentation](https://docs.sqlalchemy.org/)
 - [Pydantic Documentation](https://docs.pydantic.dev/)

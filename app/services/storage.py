@@ -9,7 +9,7 @@ from datetime import datetime
 class StorageSettings(BaseSettings):
     """Settings for Supabase Storage"""
     supabase_url: str
-    supabase_service_key: str
+    supabase_secret_key: str  # Uses SUPABASE_SECRET_KEY (deprecated: SUPABASE_SERVICE_KEY)
     
     class Config:
         env_file = ".env"
@@ -19,7 +19,7 @@ class StorageSettings(BaseSettings):
 def get_supabase_client() -> Client:
     """Get Supabase client instance"""
     settings = StorageSettings()
-    return create_client(settings.supabase_url, settings.supabase_service_key)
+    return create_client(settings.supabase_url, settings.supabase_secret_key)
 
 
 def upload_audio_file(
