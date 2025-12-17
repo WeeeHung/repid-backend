@@ -18,7 +18,7 @@ class WorkoutPackage(Base):
     estimated_duration_sec = Column(Integer, nullable=True)
     cover_image_url = Column(Text, nullable=True)
     user_id = Column(UUID(as_uuid=True), ForeignKey("app_users.id", ondelete="SET NULL"), nullable=True)
-    steps = Column(JSONB, default=[], nullable=False)
+    timeline = Column("timeline", JSONB, default=[], nullable=False)
     created_at = Column(DateTime(timezone=True), server_default=func.now())
     updated_at = Column(DateTime(timezone=True), server_default=func.now(), onupdate=func.now())
     

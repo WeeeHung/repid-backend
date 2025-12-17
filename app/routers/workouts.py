@@ -131,14 +131,13 @@ async def get_workout_package(
             detail=f"Workout package with id {package_id} not found"
         )
 
-    # Get all steps referenced in steps
-    steps = []
-    if workout.steps:
-        # workout.steps can be a list of IDs (strings/UUIDs) or a list of dicts (overrides)
+    # Get all steps referenced in timeline
+    timeline = []
+    if workout.timeline:
+        # workout.timeline can be a list of IDs (strings/UUIDs) or a list of dicts (overrides)
         step_ids_list = []
         step_overrides = {}
-
-        for item in workout.steps:
+        for item in workout.timeline:
             if isinstance(item, dict):
                 # Handle dict with overrides
                 # The ID might be stored as "id" or "step_id" depending on how it was saved
@@ -161,7 +160,7 @@ async def get_workout_package(
         step_db_map = {str(step.id): step for step in db_steps}
         
         # Build final list preserving order
-        for item in workout.steps:
+        for item in workout.timeline:
             # Determine ID again
             s_id = None
             override_data = {}
@@ -227,7 +226,7 @@ async def get_workout_package(
                     step_data["duration_sec"] = db_step.default_duration_sec
                     step_data["distance_m"] = db_step.default_distance_m
                 
-                steps.append(step_data)
+                timeline.append(step_data)
     
     # Build full response
     response = {
@@ -240,7 +239,7 @@ async def get_workout_package(
         "user_id": workout.user_id,
         "created_at": workout.created_at,
         "updated_at": workout.updated_at,
-        "steps": steps
+        "timeline": timeline
     }
     
     return WorkoutPackageFull(**response)

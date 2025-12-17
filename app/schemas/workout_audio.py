@@ -4,11 +4,15 @@ from uuid import UUID
 
 
 class AudioQueueItem(BaseModel):
-    """Schema for a single audio queue item"""
-    step_id: str  # Changed to str to match the return value
-    audio_blob: str = Field(..., description="Base64 encoded audio blob")
-    transcript: str
-    duration_sec: int = Field(None, description="Audio duration in seconds")
+    """Schema for a single audio queue item in the workout audio timeline.
+
+    Each item corresponds to a logical voice event in the workout timeline.
+    """
+
+    order: int = Field(..., description="Order of this item in the workout timeline (1-based)")
+    intro_audio_blob: str = Field(..., description="Base64 encoded audio blob for the intro segment")
+    start_audio_blob: str = Field(..., description="Base64 encoded audio blob for the start segment")
+    cue_audio_blobs: List[str] = Field(..., description="List of base64 encoded audio blobs for cue segments.")
 
 
 class GenerateAudioRequest(BaseModel):

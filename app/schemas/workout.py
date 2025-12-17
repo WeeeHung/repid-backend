@@ -58,7 +58,7 @@ class WorkoutPackageBase(BaseModel):
     category: Optional[str] = None
     estimated_duration_sec: Optional[int] = None
     cover_image_url: Optional[str] = None
-    steps: List[Dict[str, Any]] = []
+    timeline: List[Dict[str, Any]] = []
 
 
 class WorkoutPackageCreate(WorkoutPackageBase):
@@ -73,7 +73,7 @@ class WorkoutPackageUpdate(BaseModel):
     category: Optional[str] = None
     estimated_duration_sec: Optional[int] = None
     cover_image_url: Optional[str] = None
-    steps: Optional[List[Dict[str, Any]]] = None
+    timeline: Optional[List[Dict[str, Any]]] = None
 
 
 class WorkoutPackageResponse(WorkoutPackageBase):
@@ -115,8 +115,8 @@ class WorkoutStepConfigured(WorkoutStepBase):
 
 
 class WorkoutPackageFull(WorkoutPackageResponse):
-    """Full WorkoutPackage with steps"""
-    steps: List[WorkoutStepConfigured] = []
+    """Full WorkoutPackage with timeline"""
+    timeline: List[WorkoutStepConfigured] = []
 
     class Config:
         from_attributes = True

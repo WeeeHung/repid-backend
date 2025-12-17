@@ -59,14 +59,12 @@ def verify_supabase_token(token: str) -> dict:
     Raises:
         HTTPException: If token is invalid
     """
-
     settings = AuthSettings()
     
     # First, decode token header to check algorithm
     try:
         unverified_header = jwt.get_unverified_header(token)
         algorithm = unverified_header.get("alg", "RS256")
-        logger.debug(f"Token algorithm: {algorithm}")
     except Exception as e:
         logger.warning(f"Failed to decode token header: {str(e)}")
         raise HTTPException(
@@ -144,7 +142,6 @@ def verify_supabase_token(token: str) -> dict:
                         # JWKS verification succeeded
                         user_id = decoded.get("sub")
                         email = decoded.get("email")
-                        logger.info(f"Token verified via JWKS (HS256) - User ID: {user_id}, Email: {email if email else 'N/A'}")
                         return decoded
             
             # Fallback to JWT secret if no kid or JWKS failed
@@ -180,7 +177,6 @@ def verify_supabase_token(token: str) -> dict:
             
             user_id = decoded.get("sub")
             email = decoded.get("email")
-            logger.info(f"Token verified via JWT secret - User ID: {user_id}, Email: {email if email else 'N/A'}")
             
             return decoded
         else:
@@ -234,10 +230,6 @@ def get_current_user_id(
             status_code=status.HTTP_401_UNAUTHORIZED,
             detail="Token missing user ID"
         )
-    
-    # Log current user information
-    email = payload.get("email")
-    logger.info(f"Authenticated user - ID: {user_id}, Email: {email if email else 'N/A'}")
     
     return user_id
 

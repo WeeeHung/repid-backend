@@ -12,3 +12,4 @@ google-generativeai
 cryptography==42.0.5
 mutagen==1.47.0
 openai==1.56.0
+pydub==0.25.1
