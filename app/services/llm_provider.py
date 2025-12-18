@@ -33,43 +33,29 @@ class LLMProviderInterface(ABC):
         trainer_config: Dict[str, Any]
     ) -> str:
         """Build the prompt for workout script generation"""
-        # Extract persona settings
-        persona_style = trainer_config.get("persona_style", "standard")
-        enthusiasm_cat = trainer_config.get("enthusiasm_cat", 3)
-        age_cat = trainer_config.get("age_cat", 3)
-        gender = trainer_config.get("gender") or user_profile.get("sex")
-        
-        # Map enthusiasm to descriptive words
-        enthusiasm_map = {
-            1: "very calm and gentle",
-            2: "calm and encouraging",
-            3: "motivating and energetic",
-            4: "highly energetic and enthusiastic",
-            5: "extremely intense and passionate"
-        }
-        enthusiasm_desc = enthusiasm_map.get(enthusiasm_cat, "motivating and energetic")
-        
-        # Map persona style to tone
-        persona_map = {
-            "chill": "relaxed, friendly, and laid-back",
-            "standard": "professional, clear, and supportive",
-            "locked-in": "intense, focused, and driven"
-        }
-        persona_desc = persona_map.get(persona_style, "professional, clear, and supportive")
-        
         # Build user context
         fitness_level = user_profile.get("fitness_level", "intermediate")
         goal = user_profile.get("goal", "general_fitness")
         goal_map = {
-            "lose_fat": "losing weight and burning fat",
-            "build_muscle": "building muscle and strength",
-            "general_fitness": "improving overall fitness"
+            "lose_fat": "fat loss and conditioning",
+            "build_muscle": "strength and muscle development",
+            "general_fitness": "overall fitness and wellness"
         }
-        goal_desc = goal_map.get(goal, "improving overall fitness")
+        goal_desc = goal_map.get(goal, "overall fitness and wellness")
         number_of_sets = len(timeline_item.get("sets") or []) or 1
         
         # Build prompt
-        prompt = f"""You are a personal fitness trainer providing voice instructions for a workout step to a single person.
+        prompt = f"""You are a premium personal fitness coach guiding a user through a physical wellness session. Your tone is confident, warm, and present. You speak with steady energy — engaged but not overhyped. Authority comes from clarity and certainty, not volume or exaggeration.
+
+GUIDELINES:
+- Use short, purposeful sentences with natural warmth
+- Avoid filler, jokes, emojis, slang, or excessive exclamation marks
+- No motivational clichés or generic hype phrases
+- Be grounded but not flat — maintain steady engagement
+- Assume the user is disciplined and capable
+- Focus on form, breath, rhythm, and awareness
+- Encourage control and intention over aggression
+- Speak like a trusted coach who believes in the user
 
 WORKOUT STEP:
 - Title: {timeline_item["title"]}
@@ -83,49 +69,27 @@ USER PROFILE:
 - Fitness Level: {fitness_level}
 - Goal: {goal_desc}
 
-TRAINER PERSONALITY:
-- Style: {persona_desc}
-- Enthusiasm: {enthusiasm_desc}
-- Age Category: {age_cat}/5
-- Gender: {gender or 'neutral'}
-
 TASK:
-Generate a personalized voice instruction script for this workout step. The script should:
-1. Match the {persona_desc} personality style
-2. Have {enthusiasm_desc} energy level
-3. Be appropriate for a {fitness_level} fitness level
-4. Be concise and clear (aim for 10-30 seconds of speech)
-5. Include clear instructions for the exercise
-6. Be motivating and encouraging
-7. Use natural, conversational language suitable for voice delivery
-8. Do not use any markdown formatting (e.g., **bold**), just plain text.
-9. Make it fun and engaging with some light-hearted jokes.
+Generate a voice instruction script for this workout step. The script should:
+1. Be confident, clear, and warmly engaged — not flat or detached
+2. Be appropriate for a {fitness_level} fitness level
+3. Focus on proper form, breathing, and body awareness
+4. Use natural, conversational language suitable for voice delivery
+5. Do not use any markdown formatting, emojis, or excessive punctuation
 
 OUTPUT FORMAT:
 You must return a valid JSON object with exactly three fields:
-- "intro_text": A comprehensive explanation on the workout as a briefing, 
-    including how to execute the exercise and what to look out for. About 3 sentences.
-- "start_text": Hype the user to start the workout. About 1 sentence.
-- "cue_text": IF Exercise type: {timeline_item.get("exercise_type")} is "durations", A single string with {2 * number_of_sets} cue sentences that can be spoken at any rep. 
-The cues are reminders and tips for the user to do the exercise correctly. 
-Split the sentences with '<break time="1s" />'. Else return an empty string.
+- "intro_text": A thorough pep talk into starting this exercise. Ensure the user is clear on the exercise, covering form, breathing, muscle engagement, and key points to focus on. Be detailed and instructive. 5-8 sentences.
+- "start_text": A calm, composed cue to begin. One short sentence, no hype.
+- "cue_text": IF Exercise type is "durations", provide {2 * number_of_sets} cue sentences focused on form, breath, and rhythm. Split with '<break time="1s" />'. Otherwise return an empty string.
 
 Return ONLY the JSON object, no explanations or metadata. Example format:
-{{"intro_text": "Today we’re dialing in on dumbbell bench presses to build strong, balanced pushing power. Set yourself up with your feet planted, shoulders tucked back, and dumbbells starting at chest level, then press smoothly up and lower with control like you own the weight. Keep things tight and intentional — no rushing, no ego",
-  "start_text": "and when you’re ready, let’s get this started.",
-  "cue_text": "Before you move, take a moment to lock in your setup and feel your feet pressing into the floor 
-  <break time=\"1s\" /> As you lower the weights, stay smooth and controlled, keeping tension through your chest and arms 
-  <break time=\"1s\" /> Keep your core lightly braced so your body stays stable and connected on every rep 
-  <break time=\"1s\" /> Drive the dumbbells up with steady confidence, not momentum. This is important.
-  <break time=\"1s\" /> Keep your shoulders proud and supported by the bench as you press 
-  <break time=\"1s\" /> Let your elbows track naturally without flaring too wide 
-  <break time=\"1s\" /> You can breathe out as you push through the hardest part of the lift 
-  <break time=\"1s\" /> Maintain control from the first rep to the last, even as fatigue builds! 
-  <break time=\"1s\" /> Make sure to stay tight from your feet all the way through your hands 
-  <break time=\"1s\" /> Own each rep with intention and finish strong!"}}
+{{"intro_text": "This is the dumbbell bench press. You will build balanced pushing strength through controlled movement. Set your feet flat, draw your shoulders back into the bench, and hold the dumbbells at chest level. Press upward with intention, then lower slowly. Focus on stability and breath throughout.",
+  "start_text": "Begin when you are ready.",
+  "cue_text": "Ground your feet and feel the bench supporting your back <break time=\"1s\" /> Lower the weights with control, keeping tension through your chest <break time=\"1s\" /> Breathe out as you press upward <break time=\"1s\" /> Keep your core engaged and your body stable <break time=\"1s\" /> Let your elbows track naturally, not too wide <break time=\"1s\" /> Maintain steady rhythm from start to finish"}}
   OR
-  {{"intro_text": "Today we’re dialing in on dumbbell bench presses to build strong, balanced pushing power. Set yourself up with your feet planted, shoulders tucked back, and dumbbells starting at chest level, then press smoothly up and lower with control like you own the weight. Keep things tight and intentional — no rushing, no ego",
-  "start_text": "and when you’re ready, let’s get this started.",
+  {{"intro_text": "This is the dumbbell bench press. You will build balanced pushing strength through controlled movement. Set your feet flat, draw your shoulders back into the bench, and hold the dumbbells at chest level. Press upward with intention, then lower slowly. Focus on stability and breath throughout.",
+  "start_text": "Begin when you are ready.",
   "cue_text": ""}}"""
 
         return prompt
