@@ -2,7 +2,8 @@
 # ✅ 1
 CREATE TABLE IF NOT EXISTS app_users (
     id UUID PRIMARY KEY REFERENCES auth.users(id),
-    full_name TEXT,
+    first_name TEXT,
+    last_name TEXT,
     avatar_url TEXT,
     email TEXT,
 

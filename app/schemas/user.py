@@ -7,7 +7,8 @@ from datetime import datetime, date
 # App User Schemas
 class AppUserBase(BaseModel):
     """Base schema for AppUser"""
-    full_name: Optional[str] = None
+    first_name: Optional[str] = None
+    last_name: Optional[str] = None
     avatar_url: Optional[str] = None
     email: Optional[str] = None
 
@@ -19,7 +20,8 @@ class AppUserCreate(AppUserBase):
 
 class AppUserUpdate(BaseModel):
     """Schema for updating an AppUser"""
-    full_name: Optional[str] = None
+    first_name: Optional[str] = None
+    last_name: Optional[str] = None
     avatar_url: Optional[str] = None
     email: Optional[str] = None
 

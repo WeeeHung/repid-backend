@@ -16,7 +16,8 @@ CREATE EXTENSION IF NOT EXISTS "uuid-ossp";
 -- Table: app_users
 CREATE TABLE IF NOT EXISTS app_users (
     id UUID PRIMARY KEY REFERENCES auth.users(id) ON DELETE CASCADE,
-    full_name TEXT,
+    first_name TEXT,
+    last_name TEXT,
     avatar_url TEXT,
     email TEXT,
     created_at TIMESTAMP WITH TIME ZONE DEFAULT NOW(),
@@ -148,10 +149,11 @@ CREATE OR REPLACE FUNCTION public.handle_new_user()
 RETURNS TRIGGER AS $$
 BEGIN
   -- Insert into app_users
-  INSERT INTO public.app_users (id, full_name, avatar_url, email)
+  INSERT INTO public.app_users (id, first_name, last_name, avatar_url, email)
   VALUES (
     NEW.id,
-    COALESCE(NEW.raw_user_meta_data->>'full_name', ''),
+    COALESCE(NEW.raw_user_meta_data->>'first_name', ''),
+    COALESCE(NEW.raw_user_meta_data->>'last_name', ''),
     COALESCE(NEW.raw_user_meta_data->>'avatar_url', NULL),
     NEW.email
   );
