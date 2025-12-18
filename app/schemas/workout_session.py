@@ -61,7 +61,8 @@ class WorkoutSessionResponse(WorkoutSessionBase):
 class SessionStartRequest(BaseModel):
     """Request schema for starting a workout session"""
     workout_package_id: UUID
-    audio_queue_length: int = Field(..., ge=1, description="Number of audio items in queue")
+    workout_title: str = Field(..., description="Title of the workout")
+    exercises: List[str] = Field(default_factory=list, description="List of exercise names in the workout")
 
 
 class SessionStartResponse(BaseModel):
@@ -72,9 +73,8 @@ class SessionStartResponse(BaseModel):
 class SessionCompleteRequest(BaseModel):
     """Request schema for completing a workout session"""
     session_id: UUID
-    total_duration_sec: int = Field(..., ge=0, description="Total duration in seconds")
-    completed_steps: List[str] = Field(default_factory=list, description="List of completed step IDs")
-    user_metrics: Optional[Dict[str, Any]] = Field(None, description="Optional user metrics")
+    effort: Optional[int] = Field(None, ge=1, le=5, description="Perceived exertion (1-5)")
+    mood: Optional[int] = Field(None, ge=1, le=5, description="Post-workout mood (1-5)")
 
 
 class SessionCompleteResponse(WorkoutSessionResponse):

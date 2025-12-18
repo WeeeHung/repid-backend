@@ -1,7 +1,8 @@
 from typing import List, Dict, Any, Optional
 from sqlalchemy.orm import Session
+from sqlalchemy.orm.attributes import flag_modified
 from uuid import UUID
-from datetime import datetime
+from datetime import datetime, timezone
 from app.models.user_workout_session import UserWorkoutSession
 
 
@@ -21,7 +22,8 @@ class SessionService:
         self,
         user_id: UUID,
         package_id: UUID,
-        audio_queue_length: int
+        workout_title: str,
+        exercises: List[str]
     ) -> UserWorkoutSession:
         """
         Start a new workout session
@@ -29,7 +31,8 @@ class SessionService:
         Args:
             user_id: User ID
             package_id: Workout package ID
-            audio_queue_length: Number of audio items in queue
+            workout_title: Title of the workout
+            exercises: List of exercise names
             
         Returns:
             UserWorkoutSession model
@@ -37,10 +40,10 @@ class SessionService:
         session = UserWorkoutSession(
             user_id=user_id,
             package_id=package_id,
-            started_at=datetime.utcnow(),
+            started_at=datetime.now(timezone.utc),
             session_metadata={
-                "audio_queue_length": audio_queue_length,
-                "completed_steps": []
+                "workout_title": workout_title,
+                "exercises": exercises
             }
         )
         self.db.add(session)
@@ -52,9 +55,8 @@ class SessionService:
         self,
         session_id: UUID,
         user_id: UUID,
-        total_duration_sec: int,
-        completed_steps: List[str],
-        user_metrics: Optional[Dict[str, Any]] = None
+        effort: Optional[int] = None,
+        mood: Optional[int] = None
     ) -> UserWorkoutSession:
         """
         Complete a workout session
@@ -62,9 +64,8 @@ class SessionService:
         Args:
             session_id: Session ID
             user_id: User ID (for validation)
-            total_duration_sec: Total duration in seconds
-            completed_steps: List of completed step IDs
-            user_metrics: Optional user metrics dict
+            effort: Perceived exertion (1-5)
+            mood: Post-workout mood (1-5)
             
         Returns:
             Updated UserWorkoutSession model
@@ -81,15 +82,20 @@ class SessionService:
             raise ValueError(f"Session {session_id} not found or doesn't belong to user")
         
         # Update session
-        session.ended_at = datetime.utcnow()
+        session.ended_at = datetime.now(timezone.utc)
+        
+        # Calculate duration from timestamps
+        duration_sec = int((session.ended_at - session.started_at).total_seconds())
         
         # Update metadata
         metadata = session.session_metadata or {}
-        metadata["duration_sec"] = total_duration_sec
-        metadata["completed_steps"] = completed_steps
-        if user_metrics:
-            metadata["user_metrics"] = user_metrics
+        metadata["duration_sec"] = duration_sec
+        if effort is not None:
+            metadata["effort"] = effort
+        if mood is not None:
+            metadata["mood"] = mood
         session.session_metadata = metadata
+        flag_modified(session, "session_metadata")
         
         self.db.commit()
         self.db.refresh(session)

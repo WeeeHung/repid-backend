@@ -206,7 +206,8 @@ async def start_workout_session(
         session = session_service.start_session(
             user_id=user_uuid,
             package_id=request.workout_package_id,
-            audio_queue_length=request.audio_queue_length
+            workout_title=request.workout_title,
+            exercises=request.exercises
         )
         return SessionStartResponse(session_id=session.id)
     except ValueError as e:
@@ -230,7 +231,7 @@ async def complete_workout_session(
     """
     Complete a workout session (simplified endpoint)
     
-    Updates session with ended_at, duration_sec, and completed_steps.
+    Updates session with ended_at, workout_title, exercises, and session_metadata.
     Optionally stores user_metrics in metadata.
     """
     try:
@@ -246,9 +247,8 @@ async def complete_workout_session(
         session = session_service.complete_session(
             session_id=request.session_id,
             user_id=user_uuid,
-            total_duration_sec=request.total_duration_sec,
-            completed_steps=request.completed_steps,
-            user_metrics=request.user_metrics
+            effort=request.effort,
+            mood=request.mood
         )
         return session
     except ValueError as e:
