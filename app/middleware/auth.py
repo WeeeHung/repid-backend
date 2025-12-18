@@ -102,11 +102,6 @@ def verify_supabase_token(token: str) -> dict:
                     options={"verify_aud": False, "verify_iss": False}
                 )
             
-            # Log token verification success with user info
-            user_id = decoded.get("sub")
-            email = decoded.get("email")
-            logger.info(f"Token verified via JWKS - User ID: {user_id}, Email: {email if email else 'N/A'}")
-            
             return decoded
         elif algorithm == "HS256":
             # For HS256 tokens, check if they have a kid (key ID) - if so, use JWKS
@@ -140,8 +135,6 @@ def verify_supabase_token(token: str) -> dict:
                         pass
                     else:
                         # JWKS verification succeeded
-                        user_id = decoded.get("sub")
-                        email = decoded.get("email")
                         return decoded
             
             # Fallback to JWT secret if no kid or JWKS failed
@@ -174,9 +167,6 @@ def verify_supabase_token(token: str) -> dict:
                     status_code=status.HTTP_401_UNAUTHORIZED,
                     detail="Token signature verification failed. The SUPABASE_JWT_SECRET may not match your Supabase project's current JWT secret, or the token may be signed with a rotated key. Please check your Supabase project settings."
                 )
-            
-            user_id = decoded.get("sub")
-            email = decoded.get("email")
             
             return decoded
         else:
