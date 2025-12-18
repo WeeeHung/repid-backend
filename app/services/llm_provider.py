@@ -106,9 +106,9 @@ You must return a valid JSON object with exactly three fields:
 - "intro_text": A comprehensive explanation on the workout as a briefing, 
     including how to execute the exercise and what to look out for. About 3 sentences.
 - "start_text": Hype the user to start the workout. About 1 sentence.
-- "cue_text": A single string with {2 * number_of_sets} cue sentences that can be spoken at any rep. 
+- "cue_text": IF Exercise type: {timeline_item.get("exercise_type")} is "durations", A single string with {2 * number_of_sets} cue sentences that can be spoken at any rep. 
 The cues are reminders and tips for the user to do the exercise correctly. 
-Split the sentences with '<break time="1s" />'.
+Split the sentences with '<break time="1s" />'. Else return an empty string.
 
 Return ONLY the JSON object, no explanations or metadata. Example format:
 {{"intro_text": "Today we’re dialing in on dumbbell bench presses to build strong, balanced pushing power. Set yourself up with your feet planted, shoulders tucked back, and dumbbells starting at chest level, then press smoothly up and lower with control like you own the weight. Keep things tight and intentional — no rushing, no ego",
@@ -122,7 +122,11 @@ Return ONLY the JSON object, no explanations or metadata. Example format:
   <break time=\"1s\" /> You can breathe out as you push through the hardest part of the lift 
   <break time=\"1s\" /> Maintain control from the first rep to the last, even as fatigue builds! 
   <break time=\"1s\" /> Make sure to stay tight from your feet all the way through your hands 
-  <break time=\"1s\" /> Own each rep with intention and finish strong!"}}"""
+  <break time=\"1s\" /> Own each rep with intention and finish strong!"}}
+  OR
+  {{"intro_text": "Today we’re dialing in on dumbbell bench presses to build strong, balanced pushing power. Set yourself up with your feet planted, shoulders tucked back, and dumbbells starting at chest level, then press smoothly up and lower with control like you own the weight. Keep things tight and intentional — no rushing, no ego",
+  "start_text": "and when you’re ready, let’s get this started.",
+  "cue_text": ""}}"""
 
         return prompt
     

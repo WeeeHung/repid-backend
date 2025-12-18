@@ -243,14 +243,16 @@ class WorkoutService:
         intro_text: str,
         start_text: str,
         cue_text: str,
-        tts_settings: Dict[str, Any]
+        tts_settings: Dict[str, Any],
+        exercise_type: str = "duration"
     ) -> Dict[str, Any]:
         """
         Generate TTS audio for a single voice event.
 
         This produces:
         - One intro audio blob
-        - One combined cue audio blob (later splittable into segments via audio analysis)
+        - One start audio blob
+        - Cue audio blobs (only for duration exercises)
         """
         logger.info(f"Starting audio generation for voice_event order={order}")
         logger.debug(
@@ -320,22 +322,26 @@ class WorkoutService:
                 len(start_audio_data),
             )
 
-            # Cue audio
-            logger.info(
-                "Calling %s API to generate CUE audio (voice_id=%s)...",
-                tts_settings["voice_provider"],
-                tts_settings.get("voice_id"),
-            )
-            cue_audio_data = provider.generate_audio(
-                text=cue_text,
-                voice_id=tts_settings["voice_id"],
-                **voice_settings_kwargs
-            )
-            logger.info(
-                "Successfully generated CUE audio via %s (size=%s bytes)",
-                tts_settings["voice_provider"],
-                len(cue_audio_data),
-            )
+            # Cue audio (only for duration exercises)
+            cue_audio_data = None
+            if exercise_type == "duration":
+                logger.info(
+                    "Calling %s API to generate CUE audio (voice_id=%s)...",
+                    tts_settings["voice_provider"],
+                    tts_settings.get("voice_id"),
+                )
+                cue_audio_data = provider.generate_audio(
+                    text=cue_text,
+                    voice_id=tts_settings["voice_id"],
+                    **voice_settings_kwargs
+                )
+                logger.info(
+                    "Successfully generated CUE audio via %s (size=%s bytes)",
+                    tts_settings["voice_provider"],
+                    len(cue_audio_data),
+                )
+            else:
+                logger.info("Skipping CUE audio generation for non-duration exercise (type=%s)", exercise_type)
         except Exception as e:
             logger.error(
                 f"{tts_settings['voice_provider']} API error: {type(e).__name__}: {str(e)}\n"
@@ -348,10 +354,11 @@ class WorkoutService:
         intro_audio_blob_base64 = base64.b64encode(intro_audio_data).decode("utf-8")
         start_audio_blob_base64 = base64.b64encode(start_audio_data).decode("utf-8")
 
-        # Split cue audio into segments (e.g. by silence/decibel analysis) before encoding.
-        # For now this is a thin wrapper which returns a single segment; it can be
-        # enhanced later with real audio analysis.
-        cue_audio_blobs = self.split_cue_audio(cue_audio_data)
+        # Split cue audio into segments (only for duration exercises)
+        if cue_audio_data:
+            cue_audio_blobs = self.split_cue_audio(cue_audio_data)
+        else:
+            cue_audio_blobs = []
 
         logger.info(f"Successfully completed audio generation for voice_event order={order}")
         return {
@@ -439,12 +446,14 @@ class WorkoutService:
                 raise Exception(f"Failed to generate script via LLM for order={order}: {str(e)}")
 
             try:
+                exercise_type = timeline_item.get("exercise_type", "duration")
                 audio_item = self.generate_audio_for_voice_event(
                     order=order,
                     intro_text=intro_text,
                     start_text=start_text,
                     cue_text=cue_text,
                     tts_settings=tts_settings,
+                    exercise_type=exercise_type,
                 )
                 audio_queue.append(audio_item)
             except Exception as e:
