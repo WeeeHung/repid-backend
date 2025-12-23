@@ -1,7 +1,7 @@
 import os
 import json
 from abc import ABC, abstractmethod
-from typing import Optional, Dict, Any
+from typing import Optional, Dict, Any, List
 import google.generativeai as genai
 from openai import OpenAI
 from app.types import TimelineItem
@@ -23,6 +23,40 @@ class LLMProviderInterface(ABC):
         Returns a dict with:
         - intro_text: High-level intro/overview for the step.
         - cue_text: Combined cue sentences that can be spoken at any rep.
+        """
+        raise NotImplementedError
+    
+    @abstractmethod
+    def generate_brief_script(
+        self,
+        workout_title: str,
+        workout_description: Optional[str],
+        estimated_duration_sec: Optional[int],
+        timeline_items: List[TimelineItem],
+        user_profile: Dict[str, Any],
+        trainer_config: Dict[str, Any]
+    ) -> str:
+        """
+        Generate start brief script to mentally prepare the user for the workout session.
+        
+        Returns:
+            Brief text that explains what will happen in today's session and prepares the user mentally.
+        """
+        raise NotImplementedError
+    
+    @abstractmethod
+    def generate_debrief_script(
+        self,
+        workout_title: str,
+        timeline_items: List[TimelineItem],
+        user_profile: Dict[str, Any],
+        trainer_config: Dict[str, Any]
+    ) -> str:
+        """
+        Generate end debrief script to summarize achievements and provide post-workout guidance.
+        
+        Returns:
+            Debrief text that summarizes what was accomplished, praises the user, and provides next steps (nutrition, rest, etc.).
         """
         raise NotImplementedError
     
@@ -92,6 +126,127 @@ Return ONLY the JSON object, no explanations or metadata. Example format:
   "start_text": "Begin when you are ready.",
   "cue_text": ""}}"""
 
+        return prompt
+    
+    def _build_brief_prompt(
+        self,
+        workout_title: str,
+        workout_description: Optional[str],
+        estimated_duration_sec: Optional[int],
+        timeline_items: List[TimelineItem],
+        user_profile: Dict[str, Any],
+        trainer_config: Dict[str, Any]
+    ) -> str:
+        """Build the prompt for brief script generation"""
+        fitness_level = user_profile.get("fitness_level", "intermediate")
+        goal = user_profile.get("goal", "general_fitness")
+        goal_map = {
+            "lose_fat": "fat loss and conditioning",
+            "build_muscle": "strength and muscle development",
+            "general_fitness": "overall fitness and wellness"
+        }
+        goal_desc = goal_map.get(goal, "overall fitness and wellness")
+        
+        # Build exercise list
+        exercise_list = "\n".join([f"- {item.get('title', 'N/A')}" for item in timeline_items])
+        duration_min = (estimated_duration_sec // 60) if estimated_duration_sec else None
+        duration_text = f"{duration_min} minutes" if duration_min else "this session"
+        
+        prompt = f"""You are a premium personal fitness coach preparing a user for their workout session. Your tone is confident, warm, and motivating. You speak with steady energy — engaged but not overhyped. Authority comes from clarity and certainty, not volume or exaggeration.
+
+GUIDELINES:
+- Use short, purposeful sentences with natural warmth
+- Avoid filler, jokes, emojis, slang, or excessive exclamation marks
+- No motivational clichés or generic hype phrases
+- Be grounded but not flat — maintain steady engagement
+- Assume the user is disciplined and capable
+- Focus on mental preparation and setting clear expectations
+- Encourage focus, intention, and presence
+- Speak like a trusted coach who believes in the user
+
+WORKOUT SESSION:
+- Title: {workout_title}
+- Description: {workout_description or 'N/A'}
+- Estimated Duration: {duration_text}
+- Exercises: {len(timeline_items)} exercises
+{exercise_list}
+
+USER PROFILE:
+- Fitness Level: {fitness_level}
+- Goal: {goal_desc}
+
+TASK:
+Generate a start brief that:
+1. Welcomes the user and explains what will happen in today's session
+2. Mentally prepares them for the workout ahead
+3. Motivates them if necessary (but keep it grounded, not hype)
+4. Sets clear expectations about the session
+5. Prepares them to begin with the warm-up right after this brief
+6. Uses natural, conversational language suitable for voice delivery
+7. Does not use any markdown formatting, emojis, or excessive punctuation
+
+The brief should be 6-10 sentences. It should feel like a coach speaking directly to the user, preparing them mentally and physically for the work ahead. After this brief, the warm-up will start immediately.
+
+Return ONLY the brief text, no JSON, no explanations, no metadata."""
+        
+        return prompt
+    
+    def _build_debrief_prompt(
+        self,
+        workout_title: str,
+        timeline_items: List[TimelineItem],
+        user_profile: Dict[str, Any],
+        trainer_config: Dict[str, Any]
+    ) -> str:
+        """Build the prompt for debrief script generation"""
+        fitness_level = user_profile.get("fitness_level", "intermediate")
+        goal = user_profile.get("goal", "general_fitness")
+        goal_map = {
+            "lose_fat": "fat loss and conditioning",
+            "build_muscle": "strength and muscle development",
+            "general_fitness": "overall fitness and wellness"
+        }
+        goal_desc = goal_map.get(goal, "overall fitness and wellness")
+        
+        # Build exercise list
+        exercise_list = "\n".join([f"- {item.get('title', 'N/A')}" for item in timeline_items])
+        
+        prompt = f"""You are a premium personal fitness coach congratulating a user after completing their workout session. Your tone is warm, proud, and supportive. You speak with genuine appreciation for their effort.
+
+GUIDELINES:
+- Use short, purposeful sentences with natural warmth
+- Avoid filler, jokes, emojis, slang, or excessive exclamation marks
+- No motivational clichés or generic hype phrases
+- Be genuine and specific in your praise
+- Acknowledge their effort and completion
+- Provide practical post-workout guidance
+- Speak like a trusted coach who cares about their recovery and progress
+
+WORKOUT SESSION COMPLETED:
+- Title: {workout_title}
+- Exercises Completed: {len(timeline_items)} exercises
+{exercise_list}
+
+USER PROFILE:
+- Fitness Level: {fitness_level}
+- Goal: {goal_desc}
+
+TASK:
+Generate an end debrief that:
+1. Summarizes what they accomplished today (briefly mention key exercises)
+2. Praises them genuinely for completing the session
+3. Provides practical post-workout guidance:
+   - Nutrition/hydration reminders
+   - Rest and recovery advice
+   - What to do next
+4. Ends with a warm goodbye message (e.g., "See you for the next workout and rest well!")
+5. Uses natural, conversational language suitable for voice delivery
+6. Does not use any markdown formatting, emojis, or excessive punctuation
+
+The debrief should be 8-12 sentences. It should feel like a coach acknowledging their hard work and caring about their recovery. End with a warm farewell.
+
+Return ONLY the debrief text, no JSON, no explanations, no metadata."""
+        
         return prompt
     
     def _parse_json_response(self, response_text: str) -> Dict[str, str]:
@@ -173,6 +328,45 @@ class GeminiProvider(LLMProviderInterface):
 
         # Parse JSON response
         return self._parse_json_response(response_text)
+    
+    def generate_brief_script(
+        self,
+        workout_title: str,
+        workout_description: Optional[str],
+        estimated_duration_sec: Optional[int],
+        timeline_items: List[TimelineItem],
+        user_profile: Dict[str, Any],
+        trainer_config: Dict[str, Any]
+    ) -> str:
+        """Generate start brief script using Gemini."""
+        prompt = self._build_brief_prompt(
+            workout_title, workout_description, estimated_duration_sec,
+            timeline_items, user_profile, trainer_config
+        )
+        
+        try:
+            response = self.model.generate_content(prompt)
+            return response.text.strip()
+        except Exception as e:
+            raise Exception(f"Failed to generate brief script with Gemini: {str(e)}")
+    
+    def generate_debrief_script(
+        self,
+        workout_title: str,
+        timeline_items: List[TimelineItem],
+        user_profile: Dict[str, Any],
+        trainer_config: Dict[str, Any]
+    ) -> str:
+        """Generate end debrief script using Gemini."""
+        prompt = self._build_debrief_prompt(
+            workout_title, timeline_items, user_profile, trainer_config
+        )
+        
+        try:
+            response = self.model.generate_content(prompt)
+            return response.text.strip()
+        except Exception as e:
+            raise Exception(f"Failed to generate debrief script with Gemini: {str(e)}")
 
 
 class OpenAIProvider(LLMProviderInterface):
@@ -221,3 +415,64 @@ class OpenAIProvider(LLMProviderInterface):
 
         # Parse JSON response
         return self._parse_json_response(response_text)
+    
+    def generate_brief_script(
+        self,
+        workout_title: str,
+        workout_description: Optional[str],
+        estimated_duration_sec: Optional[int],
+        timeline_items: List[TimelineItem],
+        user_profile: Dict[str, Any],
+        trainer_config: Dict[str, Any]
+    ) -> str:
+        """Generate start brief script using OpenAI."""
+        prompt = self._build_brief_prompt(
+            workout_title, workout_description, estimated_duration_sec,
+            timeline_items, user_profile, trainer_config
+        )
+        
+        try:
+            response = self.client.chat.completions.create(
+                model=self.model_name,
+                messages=[
+                    {
+                        "role": "system",
+                        "content": "You are a professional fitness trainer creating voice instructions for workouts. Always respond with plain text only, no JSON, no markdown.",
+                    },
+                    {"role": "user", "content": prompt},
+                ],
+                temperature=0.7,
+                max_tokens=300,
+            )
+            return response.choices[0].message.content.strip()
+        except Exception as e:
+            raise Exception(f"Failed to generate brief script with OpenAI: {str(e)}")
+    
+    def generate_debrief_script(
+        self,
+        workout_title: str,
+        timeline_items: List[TimelineItem],
+        user_profile: Dict[str, Any],
+        trainer_config: Dict[str, Any]
+    ) -> str:
+        """Generate end debrief script using OpenAI."""
+        prompt = self._build_debrief_prompt(
+            workout_title, timeline_items, user_profile, trainer_config
+        )
+        
+        try:
+            response = self.client.chat.completions.create(
+                model=self.model_name,
+                messages=[
+                    {
+                        "role": "system",
+                        "content": "You are a professional fitness trainer creating voice instructions for workouts. Always respond with plain text only, no JSON, no markdown.",
+                    },
+                    {"role": "user", "content": prompt},
+                ],
+                temperature=0.7,
+                max_tokens=400,
+            )
+            return response.choices[0].message.content.strip()
+        except Exception as e:
+            raise Exception(f"Failed to generate debrief script with OpenAI: {str(e)}")

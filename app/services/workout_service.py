@@ -288,7 +288,10 @@ class WorkoutService:
                 logger.warning(f"Failed to configure ElevenLabs VoiceSettings: {str(e)}")
 
         try:
-            # Intro audio
+            # Intro audio (required)
+            if not intro_text:
+                raise ValueError("intro_text cannot be empty")
+            
             logger.info(
                 "Calling %s API to generate INTRO audio (voice_id=%s)...",
                 tts_settings["voice_provider"],
@@ -305,26 +308,30 @@ class WorkoutService:
                 len(intro_audio_data),
             )
 
-            # Start audio
-            logger.info(
-                "Calling %s API to generate START audio (voice_id=%s)...",
-                tts_settings["voice_provider"],
-                tts_settings.get("voice_id"),
-            )
-            start_audio_data = provider.generate_audio(
-                text=start_text,
-                voice_id=tts_settings["voice_id"],
-                **voice_settings_kwargs
-            )
-            logger.info(
-                "Successfully generated START audio via %s (size=%s bytes)",
-                tts_settings["voice_provider"],
-                len(start_audio_data),
-            )
+            # Start audio (optional - skip if empty)
+            start_audio_data = None
+            if start_text:
+                logger.info(
+                    "Calling %s API to generate START audio (voice_id=%s)...",
+                    tts_settings["voice_provider"],
+                    tts_settings.get("voice_id"),
+                )
+                start_audio_data = provider.generate_audio(
+                    text=start_text,
+                    voice_id=tts_settings["voice_id"],
+                    **voice_settings_kwargs
+                )
+                logger.info(
+                    "Successfully generated START audio via %s (size=%s bytes)",
+                    tts_settings["voice_provider"],
+                    len(start_audio_data),
+                )
+            else:
+                logger.info("Skipping START audio generation (empty text)")
 
-            # Cue audio (only for duration exercises)
+            # Cue audio (only for duration exercises and if cue_text is provided)
             cue_audio_data = None
-            if exercise_type == "duration":
+            if exercise_type == "duration" and cue_text:
                 logger.info(
                     "Calling %s API to generate CUE audio (voice_id=%s)...",
                     tts_settings["voice_provider"],
@@ -341,7 +348,10 @@ class WorkoutService:
                     len(cue_audio_data),
                 )
             else:
-                logger.info("Skipping CUE audio generation for non-duration exercise (type=%s)", exercise_type)
+                if exercise_type != "duration":
+                    logger.info("Skipping CUE audio generation for non-duration exercise (type=%s)", exercise_type)
+                elif not cue_text:
+                    logger.info("Skipping CUE audio generation (empty text)")
         except Exception as e:
             logger.error(
                 f"{tts_settings['voice_provider']} API error: {type(e).__name__}: {str(e)}\n"
@@ -352,7 +362,7 @@ class WorkoutService:
 
         # Encode audio data as base64 for JSON response
         intro_audio_blob_base64 = base64.b64encode(intro_audio_data).decode("utf-8")
-        start_audio_blob_base64 = base64.b64encode(start_audio_data).decode("utf-8")
+        start_audio_blob_base64 = base64.b64encode(start_audio_data).decode("utf-8") if start_audio_data else ""
 
         # Split cue audio into segments (only for duration exercises)
         if cue_audio_data:
@@ -402,12 +412,45 @@ class WorkoutService:
         if not (0.5 <= speaking_rate <= 2.0):
             raise ValueError(f"speaking_rate must be between 0.5 and 2.0, got {speaking_rate}")
         
+        audio_queue = []
+        
+        # Generate brief audio (order: 0) - start of workout
+        try:
+            logger.info("Generating brief script (order=0)...")
+            brief_text = self.llm_service.generate_brief_script(
+                workout_title=package.title,
+                workout_description=package.description,
+                estimated_duration_sec=package.estimated_duration_sec,
+                timeline_items=timeline_items,
+                user_profile=user_profile,
+                trainer_config=trainer_config,
+            )
+            logger.info(f"Successfully generated brief script (length={len(brief_text)})")
+            
+            brief_audio_item = self.generate_audio_for_voice_event(
+                order=0,
+                intro_text=brief_text,
+                start_text="",  # No start text for brief
+                cue_text="",    # No cue text for brief
+                tts_settings=tts_settings,
+                exercise_type="custom",  # Not a real exercise
+            )
+            audio_queue.append(brief_audio_item)
+            logger.info("Successfully generated brief audio (order=0)")
+        except Exception as e:
+            logger.error(
+                "Error generating brief audio: %s: %s",
+                type(e).__name__,
+                str(e),
+                exc_info=True,
+            )
+            raise Exception(f"Failed to generate brief audio: {str(e)}")
+        
         # Generate audio for each timeline item as a simple ordered voice event.
         # NOTE: This is an initial implementation. In the future, we should:
         # - Build a richer VoiceEvent from the workout timeline (including reps, phase_type, etc.)
         # - Ask the LLM to produce an intro plus cues[] (rep_count * 2) per event.
         # - Use sets information to generate per-set cues
-        audio_queue = []
         for index, timeline_item in enumerate(timeline_items):
             order = index + 1
 
@@ -458,6 +501,36 @@ class WorkoutService:
                 audio_queue.append(audio_item)
             except Exception as e:
                 raise Exception(f"Failed to generate audio for voice_event order={order}: {str(e)}")
+        
+        # Generate debrief audio (order: -1) - end of workout
+        try:
+            logger.info("Generating debrief script (order=-1)...")
+            debrief_text = self.llm_service.generate_debrief_script(
+                workout_title=package.title,
+                timeline_items=timeline_items,
+                user_profile=user_profile,
+                trainer_config=trainer_config,
+            )
+            logger.info(f"Successfully generated debrief script (length={len(debrief_text)})")
+            
+            debrief_audio_item = self.generate_audio_for_voice_event(
+                order=-1,
+                intro_text=debrief_text,
+                start_text="",  # No start text for debrief
+                cue_text="",    # No cue text for debrief
+                tts_settings=tts_settings,
+                exercise_type="custom",  # Not a real exercise
+            )
+            audio_queue.append(debrief_audio_item)
+            logger.info("Successfully generated debrief audio (order=-1)")
+        except Exception as e:
+            logger.error(
+                "Error generating debrief audio: %s: %s",
+                type(e).__name__,
+                str(e),
+                exc_info=True,
+            )
+            raise Exception(f"Failed to generate debrief audio: {str(e)}")
 
         return audio_queue
 
